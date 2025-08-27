@@ -7,19 +7,18 @@ It is usually faster than blockSubscribe, but slower than Geyser.
 
 import asyncio
 import base64
+import os
 import json
 import struct
 from dotenv import load_dotenv
 import base58
 import websockets
 from solders.pubkey import Pubkey
-import os
 
 load_dotenv()
 
-RPC_ENDPOINT = os.environ.get("SOLANA_NODE_RPC_ENDPOINT")
+WSS_ENDPOINT = os.environ.get("SOLANA_NODE_WSS_ENDPOINT")
 PUMP_PROGRAM_ID = Pubkey.from_string("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P")
-
 
 def parse_create_instruction(data):
     if len(data) < 8:
@@ -55,11 +54,10 @@ def parse_create_instruction(data):
     except:
         return None
 
-
 async def listen_for_new_tokens():
     while True:
         try:
-            async with websockets.connect(RPC_ENDPOINT) as websocket:
+            async with websockets.connect(WSS_ENDPOINT) as websocket:
                 subscription_message = json.dumps(
                     {
                         "jsonrpc": "2.0",
@@ -126,6 +124,4 @@ async def listen_for_new_tokens():
             print("Reconnecting in 5 seconds...")
             await asyncio.sleep(5)
 
-
-if __name__ == "__main__":
-    asyncio.run(listen_for_new_tokens())
+asyncio.run(listen_for_new_tokens())
